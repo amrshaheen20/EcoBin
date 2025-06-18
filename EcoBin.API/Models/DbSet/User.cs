@@ -28,8 +28,10 @@ namespace EcoBin.API.Models.DbSet
         public DateTime LastActiveTime { get; set; }
 
         public virtual ICollection<UserSession> Sessions { get; set; } = new List<UserSession>();
-        public virtual ICollection<Report> Notifications { get; set; } = new List<Report>();
+        public virtual ICollection<Report> Reports { get; set; } = new List<Report>();
         public virtual ICollection<Worker> Workers { get; set; } = new List<Worker>();
+
+        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     }
 
     public class UserConfiguration : IEntityTypeConfiguration<User>

@@ -21,7 +21,7 @@ namespace EcoBin.API.Models.DbSet
         {
             builder.HasIndex(x => x.MangerId);
             builder.HasOne(x => x.Manger)
-                   .WithMany(x => x.Notifications)
+                   .WithMany(x => x.Reports)
                    .HasForeignKey(x => x.MangerId)
                    .OnDelete(DeleteBehavior.Cascade);
 

@@ -3,15 +3,13 @@ using EcoBin.API.Enums;
 using EcoBin.API.Extensions;
 using EcoBin.API.Interfaces;
 using EcoBin.API.Models.DbSet;
-using Microsoft.EntityFrameworkCore;
 
-namespace EcoBin.API.Services.WorkerContainer.Injector
+namespace EcoBin.API.Services.NotificationContainer.Injector
 {
-    public class WorkerInjector : CommandsInjector<Worker>, IServiceInjector
+    public class NotificationInjector : CommandsInjector<Notification>, IServiceInjector
     {
-        public WorkerInjector(IHttpContextAccessor contextAccessor, IUnitOfWork unitOfWork)
+        public NotificationInjector(IHttpContextAccessor contextAccessor)
         {
-
             var UserRole = contextAccessor.GetUserRole();
             var UserId = contextAccessor.GetUserId();
 
@@ -19,11 +17,8 @@ namespace EcoBin.API.Services.WorkerContainer.Injector
             switch (UserRole)
             {
                 case eRole.Worker:
-                    Where(x => x.UserId == UserId);
-                    break;
-
                 case eRole.Manger:
-                    Where(x => x.CreatedById == UserId);
+                    Where(x => x.RecipientUserId == UserId);
                     break;
 
                 default:
@@ -32,7 +27,6 @@ namespace EcoBin.API.Services.WorkerContainer.Injector
             }
 
             AddCommand(q => q.OrderByDescending(x => x.Id));
-            AddCommand(q => q.Include(x => x.User));
         }
     }
 }

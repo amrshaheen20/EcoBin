@@ -10,9 +10,11 @@ namespace EcoBin.API.Models.Dtos
         public eWorkerJobType? jobType { get; set; }
     }
 
-    public class WorkerResponseDto : BaseResponseDto
+
+
+    public class WorkerResponseDto : AccountResponseDto
     {
-        public  AccountResponseDto Account { get; set; } = default!;
+        public int AccountId { get; set; }
         public  eWorkerJobType jobType { get; set; }
     }
 }

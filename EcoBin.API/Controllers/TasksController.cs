@@ -77,5 +77,17 @@ namespace EcoWorkerTask.API.Controllers
         {
             return BuildResponse(await taskService.DeleteTaskAsync(id));
         }
+
+        /// <summary>
+        /// Change the status of a task - Worker only
+        /// </summary>
+        /// <param name="id">The ID of the task</param>
+        [HttpPut("{id}/Completed")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [Authorize(Policy = Policies.Worker)]
+        public async Task<IActionResult> ChangeStatus(int id)
+        {
+            return BuildResponse(await taskService.ChangeTaskStatusToComplete(id));
+        }
     }
 }

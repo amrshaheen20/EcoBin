@@ -4,6 +4,7 @@ using EcoBin.API.Extensions;
 using EcoBin.API.Interfaces;
 using EcoBin.API.Models.DbSet;
 using EcoBin.API.Models.Dtos;
+using EcoBin.API.Services.NotificationContainer;
 using EcoBin.API.Services.ReportContainer.Injector;
 using System.Net;
 
@@ -13,7 +14,8 @@ namespace EcoBin.API.Services.ReportContainer
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ReportInjector reportInjector,
-        IHttpContextAccessor contextAccessor
+        IHttpContextAccessor contextAccessor,
+        NotificationService notificationService
         ) : IServiceInjector
 
     {
@@ -26,12 +28,16 @@ namespace EcoBin.API.Services.ReportContainer
         {
             var Repository = GetRepository();
 
-            var Entity = mapper.Map<Report>(requestDto);
-            Entity.WorkerId = contextAccessor.GetUserId();
+            var worker = unitOfWork.GetRepository<Worker>().GetAll().First(x => x.UserId == contextAccessor.GetUserId());
 
+            var Entity = mapper.Map<Report>(requestDto);
+            Entity.WorkerId = worker.Id;
+            Entity.MangerId = worker.CreatedById;
 
             await Repository.AddAsync(Entity);
             await unitOfWork.SaveAsync();
+
+            await notificationService.SendReportToManger(Entity);
 
             return (await GetReportByIdAsync(Entity.Id))
                    .SetStatus(HttpStatusCode.Created);

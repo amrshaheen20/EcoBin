@@ -34,25 +34,7 @@ namespace EcoBin.API.Models.Dtos
         public required bool IsLidOpen { get; set; }
         public required bool IsMaintenanceMode { get; set; }
 
-        public eBinStatus Status
-        {
-            get
-            {
-                if (CurrentCapacity < 0)
-                    return eBinStatus.Unknown;
-                if (CurrentCapacity == 0)
-                    return eBinStatus.Empty;
-                if (CurrentCapacity > 0 && CurrentCapacity < MaxCapacity)
-                    return eBinStatus.Partial;
-                if (CurrentCapacity == MaxCapacity)
-                    return eBinStatus.Full;
-                if (CurrentCapacity > MaxCapacity)
-                    return eBinStatus.Overfilled;
-
-                return eBinStatus.Unknown;
-            }
-        }
-
+        public eBinStatus Status { get; set; }
     }
 
     public class LidStateRequestDto

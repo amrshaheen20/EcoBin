@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EcoBin.API.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcoBin.API.Models.DbSet
 {
@@ -18,6 +20,33 @@ namespace EcoBin.API.Models.DbSet
         public string? Token { get; set; } = null;
         public virtual User CreatedBy { get; set; } = default!;
         public virtual ICollection<WorkerTask> Tasks { get; set; } = new List<WorkerTask>();
+
+        [NotMapped]
+        public eBinStatus Status
+        {
+            get
+            {
+                if (CurrentCapacity < 0)
+                    return eBinStatus.Unknown;
+                if (CurrentCapacity == 0)
+                    return eBinStatus.Empty;
+                if (CurrentCapacity > 0 && CurrentCapacity < MaxCapacity)
+                    return eBinStatus.Partial;
+                if (CurrentCapacity == MaxCapacity)
+                    return eBinStatus.Full;
+                if (CurrentCapacity > MaxCapacity)
+                    return eBinStatus.Overfilled;
+
+                return eBinStatus.Unknown;
+            }
+        }
+
+
+
+
+
+
+
     }
 
     public class TranchBinConfiguration : IEntityTypeConfiguration<TranchBin>

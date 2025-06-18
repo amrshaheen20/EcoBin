@@ -4,6 +4,7 @@ using EcoBin.API.Extensions;
 using EcoBin.API.Interfaces;
 using EcoBin.API.Models.DbSet;
 using EcoBin.API.Models.Dtos;
+using EcoBin.API.Services.NotificationContainer;
 using EcoBin.API.Services.TaskContainer.Injector;
 using System.Net;
 
@@ -13,7 +14,8 @@ namespace EcoBin.API.Services.TaskContainer
         IUnitOfWork unitOfWork,
         IMapper mapper,
         TaskInjector taskInjector,
-        IHttpContextAccessor contextAccessor
+        IHttpContextAccessor contextAccessor,
+        NotificationService notificationService
         ) : IServiceInjector
 
     {
@@ -102,5 +104,27 @@ namespace EcoBin.API.Services.TaskContainer
                 .SetMessage("Task deleted successfully.");
         }
 
+        public async Task<IBaseResponse<object>> ChangeTaskStatusToComplete(int TaskId)
+        {
+            var Repository = GetRepository();
+            var Entity = await Repository.GetByIdAsync(TaskId);
+            if (Entity == null)
+            {
+                return new BaseResponse()
+                    .SetStatus(HttpStatusCode.NotFound)
+                    .SetMessage("Task not found");
+            }
+            Entity.IsCompleted = true;
+            Repository.Update(Entity);
+            await unitOfWork.SaveAsync();
+
+
+            await notificationService.SendTaskStatusToManger(Entity);
+
+            return new BaseResponse()
+                .SetStatus(HttpStatusCode.NoContent)
+                .SetMessage("Task status changed to completed successfully.");
+
+        }
     }
 }

@@ -5,6 +5,7 @@ using EcoBin.API.Interfaces;
 using EcoBin.API.Models.DbSet;
 using EcoBin.API.Models.Dtos;
 using EcoBin.API.Services.BinContainer.Injector;
+using EcoBin.API.Services.NotificationContainer;
 using System.Net;
 
 namespace EcoBin.API.Services.BinContainer
@@ -13,7 +14,8 @@ namespace EcoBin.API.Services.BinContainer
         IUnitOfWork unitOfWork,
         IMapper mapper,
         BinInjector binInjector,
-        IHttpContextAccessor contextAccessor
+        IHttpContextAccessor contextAccessor,
+        NotificationService notificationService
         ) : IServiceInjector
 
     {
@@ -116,6 +118,7 @@ namespace EcoBin.API.Services.BinContainer
             Entity.CurrentCapacity = 0;
             Repository.Update(Entity);
             await unitOfWork.SaveAsync();
+            await notificationService.SendBinStatusToManagerAsync(Entity);
             return new BaseResponse()
                 .SetStatus(HttpStatusCode.OK)
                 .SetMessage("Bin has been emptied successfully.");
@@ -134,6 +137,8 @@ namespace EcoBin.API.Services.BinContainer
             Entity.IsLidOpen = request.IsOpen;
             Repository.Update(Entity);
             await unitOfWork.SaveAsync();
+
+            await notificationService.SendBinStatusToManagerAsync(Entity);
             return new BaseResponse()
                 .SetStatus(HttpStatusCode.OK)
                 .SetMessage("Lid status has been changed successfully.");
@@ -153,6 +158,7 @@ namespace EcoBin.API.Services.BinContainer
             Entity.CurrentCapacity = request.CurrentCapacity;
             Repository.Update(Entity);
             await unitOfWork.SaveAsync();
+            await notificationService.SendBinStatusToManagerAsync(Entity);
             return new BaseResponse()
                 .SetStatus(HttpStatusCode.OK)
                 .SetMessage("Current capacity has been changed successfully.");
@@ -196,7 +202,7 @@ namespace EcoBin.API.Services.BinContainer
                     .SetMessage("Bin not found");
             }
 
-            if(request.Token != Entity.Token)
+            if (request.Token != Entity.Token)
             {
                 return new BaseResponse()
                     .SetStatus(HttpStatusCode.Unauthorized)
@@ -209,6 +215,7 @@ namespace EcoBin.API.Services.BinContainer
 
             Repository.Update(Entity);
             await unitOfWork.SaveAsync();
+            await notificationService.SendBinStatusToManagerAsync(Entity);
             return new BaseResponse()
                 .SetStatus(HttpStatusCode.OK)
                 .SetMessage("Bin status has been changed successfully.");
